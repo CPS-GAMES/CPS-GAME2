@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🔺 Let’s Spell TRIANGLE! 🌈</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Comic Sans MS", "Fredoka One", cursive, sans-serif;
+      background: linear-gradient(180deg, #bbf2f6 0%, #ffeaa7 50%, #fab1a0 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      color: #2d3436;
+      padding: 12px 14px 28px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient animated balloons & clouds in background */
+    .bg-deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .balloon-1 { top: 8%; left: 4%; font-size: 2rem; animation: floatSlow 4s infinite ease-in-out; }
+    .balloon-2 { top: 12%; right: 6%; font-size: 2.2rem; animation: floatSlow 3.5s infinite ease-in-out 1s; }
+    .star-1 { bottom: 12%; left: 6%; font-size: 1.6rem; animation: pulseGlow 2s infinite alternate; }
+    .star-2 { bottom: 15%; right: 8%; font-size: 1.8rem; animation: pulseGlow 2.5s infinite alternate 0.5s; }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-14px) rotate(4deg); }
+    }
+    @keyframes pulseGlow {
+      from { transform: scale(0.9); opacity: 0.7; }
+      to { transform: scale(1.15); opacity: 1; }
+    }
+
+    .game-wrapper {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Top Bar & Progress */
+    .header-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 10px 14px;
+      box-shadow: 0 6px 0 rgba(225, 112, 85, 0.25);
+      border: 3.5px solid #ff7675;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #d63031;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .sound-toggle-btn {
+      background: #ffeaa7;
+      border: 2px solid #fdcb6e;
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #e17055;
+    }
+    .sound-toggle-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #e17055;
+    }
+
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 18px;
+      background: #dfe6e9;
+      border-radius: 12px;
+      border: 2px solid #b2bec3;
+      overflow: hidden;
+      padding: 2px;
+    }
+
+    .progress-fill {
+      width: 10%;
+      height: 100%;
+      background: linear-gradient(90deg, #fd79a8, #fdcb6e, #00cec9);
+      border-radius: 8px;
+      transition: width 0.35s ease;
+    }
+
+    .star-badge {
+      background: #fff9e6;
+      border: 2px solid #f9ca24;
+      color: #d35400;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 3px 10px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 3px 0 rgba(243, 156, 18, 0.3);
+    }
+
+    /* Mascot: Trippy the Smiling Triangle */
+    .mascot-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .mascot-svg {
+      width: 110px;
+      height: 98px;
+      filter: drop-shadow(0 6px 4px rgba(0,0,0,0.12));
+      transform-origin: bottom center;
+      animation: gentleBob 2s infinite ease-in-out;
+    }
+
+    .dancing {
+      animation: happyDance 0.35s infinite alternate ease-in-out !important;
+    }
+
+    @keyframes gentleBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes happyDance {
+      0% { transform: rotate(-12deg) scale(1.1) translateY(-4px); }
+      100% { transform: rotate(12deg) scale(1.15) translateY(-12px); }
+    }
+
+    .bubble-message {
+      background: #ffffff;
+      border: 3.5px solid #fd79a8;
+      border-radius: 16px;
+      padding: 6px 16px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #6c5ce7;
+      box-shadow: 0 4px 0 rgba(108, 92, 231, 0.2);
+      text-align: center;
+      margin-top: -6px;
+    }
+
+    /* Question & Word Display Card */
+    .play-card {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 26px;
+      border: 4.5px solid #00cec9;
+      padding: 16px 12px;
+      box-shadow: 0 8px 0 #00a8a8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .question-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #0984e3;
+      text-align: center;
+      background: #e8f8ff;
+      border: 2px dashed #74b9ff;
+      padding: 8px 14px;
+      border-radius: 14px;
+      width: 100%;
+    }
+
+    /* Word Letters Display: T R I A N G L E - Responsive Mobile Layout */
+    .word-strip {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(3px, 1.2vw, 6px);
+      background: #fff8e7;
+      border: 3px solid #ffeaa7;
+      border-radius: 18px;
+      padding: 10px 4px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .letter-tile {
+      flex: 0 1 clamp(32px, 9.8vw, 44px);
+      width: clamp(32px, 9.8vw, 44px);
+      height: clamp(42px, 12.5vw, 54px);
+      background: #ffffff;
+      border: 2.5px solid #fdcb6e;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.25rem, 5.8vw, 1.7rem);
+      font-weight: 900;
+      color: #e17055;
+      box-shadow: 0 2.5px 0 #e17055;
+      box-sizing: border-box;
+      line-height: 1;
+    }
+
+    .blank-tile {
+      background: #ffeaa7;
+      border: 2.5px dashed #ff7675;
+      color: #d63031;
+      font-size: clamp(1.35rem, 6.2vw, 1.85rem);
+      animation: pulseBlank 0.9s infinite alternate;
+    }
+
+    .filled-success {
+      background: #55efc4 !important;
+      border: 2.5px solid #00b894 !important;
+      color: #006266 !important;
+      box-shadow: 0 2.5px 0 #009470 !important;
+      transform: scale(1.05);
+      transition: all 0.25s ease;
+    }
+
+    @keyframes pulseBlank {
+      0% { transform: scale(0.96); box-shadow: 0 0 3px #ff7675; }
+      100% { transform: scale(1.04); box-shadow: 0 0 10px #ff7675; }
+    }
+
+    /* Big Colorful Answer Choice Buttons */
+    .choices-box {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      padding: 4px 0;
+    }
+
+    .letter-btn {
+      width: 82px;
+      height: 82px;
+      border-radius: 22px;
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .letter-btn:active {
+      transform: translateY(4px);
+    }
+
+    /* Pastel Theme Button Colors */
+    .btn-pink {
+      background: linear-gradient(180deg, #ff9ff3, #f368e0);
+      border-color: #d63031;
+      box-shadow: 0 6px 0 #b71540;
+    }
+    .btn-yellow {
+      background: linear-gradient(180deg, #feca57, #ff9f43);
+      border-color: #ee5253;
+      box-shadow: 0 6px 0 #c23616;
+    }
+    .btn-blue {
+      background: linear-gradient(180deg, #48dbfb, #0abde3);
+      border-color: #0984e3;
+      box-shadow: 0 6px 0 #0a3d62;
+    }
+
+    .card-footer {
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid #f1f2f6;
+      padding-top: 10px;
+    }
+
+    .feedback-text {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #00b894;
+    }
+
+    .next-action-btn {
+      background: linear-gradient(180deg, #2ecc71, #27ae60);
+      border: 3.5px solid #1e8449;
+      border-radius: 18px;
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #ffffff;
+      padding: 9px 24px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #145a32;
+      display: none;
+      animation: popIn 0.3s ease-out;
+    }
+    .next-action-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #145a32;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .shake-card {
+      animation: shakeAnim 0.35s ease-in-out;
+    }
+    @keyframes shakeAnim {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+
+    /* Modals: Start & Grand Finale */
+    .screen-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 52, 54, 0.88);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border: 5px solid #ff7675;
+      border-radius: 28px;
+      padding: 26px 18px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 12px 0 rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #ff6b81, #ff4757);
+      border: 4px solid #ee5253;
+      border-radius: 22px;
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: #ffffff;
+      padding: 14px 28px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #b33939;
+    }
+    .primary-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 #b33939;
+    }
+
+    #fxCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 90;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Cute Visuals -->
+  <div class="bg-deco balloon-1">🎈</div>
+  <div class="bg-deco balloon-2">🌈</div>
+  <div class="bg-deco star-1">⭐</div>
+  <div class="bg-deco star-2">✨</div>
+
+  <!-- Canvas for Confetti & Fireworks -->
+  <canvas id="fxCanvas"></canvas>
+
+  <!-- Start Screen -->
+  <div id="startModal" class="screen-modal">
+    <div class="modal-card">
+      <div style="font-size: 3.6rem;">🔺🌈⭐</div>
+      <h1 style="font-size: 1.85rem; font-weight: 900; color: #e74c3c; line-height: 1.2;">
+        Let’s Spell TRIANGLE!
+      </h1>
+      <p style="font-size: 1.15rem; font-weight: 800; color: #636e72;">
+        Can you find the missing letters? 🎈
+      </p>
+      <button id="startBtn" class="primary-btn">
+        ▶ PLAY! 🌟
+      </button>
+    </div>
+  </div>
+
+  <!-- Grand Finale Screen -->
+  <div id="finaleModal" class="screen-modal" style="display: none;">
+    <div class="modal-card" style="border-color: #f1c40f;">
+      <div style="font-size: 4rem; animation: gentleBob 1.5s infinite;">👑 🏆 🎈</div>
+      <h2 style="font-size: 1.7rem; font-weight: 900; color: #e74c3c;">
+        Amazing!
+      </h2>
+      <h3 style="font-size: 1.4rem; font-weight: 900; color: #27ae60;">
+        You Can Spell TRIANGLE!
+      </h3>
+      <p style="font-size: 1.15rem; font-weight: 900; color: #f39c12;">
+        ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+      </p>
+      <button id="replayBtn" class="primary-btn" style="background: linear-gradient(180deg, #2ecc71, #27ae60); border-color: #219d55;">
+        🔄 Play Again! 🌈
+      </button>
+    </div>
+  </div>
+
+  <div class="game-wrapper">
+    <!-- Header -->
+    <div class="header-box">
+      <div class="top-row">
+        <div class="title">
+          <span>🔺</span> Let’s Spell TRIANGLE!
+        </div>
+        <button id="soundToggle" class="sound-toggle-btn" title="Toggle Sound">🔔</button>
+      </div>
+      <div class="progress-bar-wrap">
+        <span id="qBadge" style="font-weight: 900; font-size: 0.95rem; color: #636e72;">1/10</span>
+        <div class="progress-track">
+          <div id="pFill" class="progress-fill"></div>
+        </div>
+        <div class="star-badge">
+          <span>⭐</span>
+          <span id="starCounter">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smiling Triangle Mascot ("Trippy") -->
+    <div class="mascot-container">
+      <svg id="trippyMascot" class="mascot-svg" viewBox="0 0 120 100">
+        <!-- Main Triangle Body -->
+        <polygon points="60,10 114,92 6,92" fill="#ffd32a" stroke="#ff9f1a" stroke-width="6" stroke-linejoin="round"/>
+        <!-- Eyes -->
+        <circle cx="48" cy="56" r="5.5" fill="#2d3436"/>
+        <circle cx="72" cy="56" r="5.5" fill="#2d3436"/>
+        <circle cx="50" cy="54" r="2" fill="#ffffff"/>
+        <circle cx="74" cy="54" r="2" fill="#ffffff"/>
+        <!-- Cute Rosy Cheeks -->
+        <circle cx="38" cy="67" r="6" fill="#ff7675" opacity="0.6"/>
+        <circle cx="82" cy="67" r="6" fill="#ff7675" opacity="0.6"/>
+        <!-- Smile -->
+        <path d="M48 69 Q60 85 72 69" fill="#ff7675" stroke="#d63031" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Corner Sparkle -->
+        <polygon points="60,2 62,6 66,7 62,9 60,13 58,9 54,7 58,6" fill="#ffffff"/>
+      </svg>
+      <div id="speechText" class="bubble-message">
+        Pick the missing letter! 🌈
+      </div>
+    </div>
+
+    <!-- Question Playground Card -->
+    <div class="play-card" id="playCard">
+      <div id="questionPrompt" class="question-title">
+        Question 1: What letter is missing?
+      </div>
+
+      <!-- Word Strip: T R I A N G L E -->
+      <div class="word-strip" id="wordStrip"></div>
+
+      <!-- 3 Choice Buttons -->
+      <div class="choices-box" id="choicesBox"></div>
+
+      <!-- Feedback / Next Bar -->
+      <div class="card-footer">
+        <div id="feedbackMsg" class="feedback-text">Tap a letter! ⭐</div>
+        <button id="nextBtn" class="next-action-btn">Next! ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Pure Web Audio Sound Effects Synthesizer (NO VOICES) */
+    class SFXEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        try {
+          const Cls = window.AudioContext || window.webkitAudioContext;
+          if (Cls && !this.ctx) {
+            this.ctx = new Cls();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        } catch(e) {}
+      }
+      tap() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          const t = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(520, t);
+          g.gain.setValueAtTime(0.15, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.08);
+        } catch(e) {}
+      }
+      wrong() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          const t = this.ctx.currentTime;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(260, t);
+          osc.frequency.exponentialRampToValueAtTime(140, t + 0.3);
+          g.gain.setValueAtTime(0.2, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.3);
+        } catch(e) {}
+      }
+      chime() {
+        if (!this.enabled || !this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C E G C
+        notes.forEach((freq, idx) => {
+          try {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            const t = this.ctx.currentTime + (idx * 0.08);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            g.gain.setValueAtTime(0.001, t);
+            g.gain.linearRampToValueAtTime(0.22, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.28);
+          } catch(e) {}
+        });
+      }
+      /* Cheerful synthesised crowd clapping/applause */
+      clapping() {
+        if (!this.enabled || !this.ctx) return;
+        this.chime();
+        // Generate quick bursts of filtered noise simulating enthusiastic clapping
+        for (let i = 0; i < 16; i++) {
+          const delay = i * (0.05 + Math.random() * 0.04);
+          this.playSingleClap(delay);
+        }
+      }
+      playSingleClap(delay) {
+        try {
+          const bufferSize = this.ctx.sampleRate * 0.04;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1100 + Math.random() * 300;
+          filter.Q.value = 1.2;
+
+          const gain = this.ctx.createGain();
+          const t = this.ctx.currentTime + delay;
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start(t);
+        } catch(e) {}
+      }
+      grandCelebration() {
+        if (!this.enabled || !this.ctx) return;
+        for (let i = 0; i < 35; i++) {
+          this.playSingleClap(i * 0.06 + Math.random() * 0.03);
+        }
+        [523, 659, 784, 1046, 1174, 1318].forEach((freq, idx) => {
+          setTimeout(() => {
+            try {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              const t = this.ctx.currentTime;
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, t);
+              g.gain.setValueAtTime(0.25, t);
+              g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+              osc.connect(g);
+              g.connect(this.ctx.destination);
+              osc.start(t);
+              osc.stop(t + 0.4);
+            } catch(e) {}
+          }, idx * 120);
+        });
+      }
+    }
+
+    const sfx = new SFXEngine();
+
+    /* Visual Particle FX: Confetti & Fireworks */
+    const canvas = document.getElementById('fxCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let isFxLooping = false;
+
+    function handleResize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    function spawnConfetti(count = 40) {
+      const colors = ['#ff7675', '#fdcb6e', '#55efc4', '#74b9ff', '#a29bfe', '#fd79a8'];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() * 120 - 60),
+          y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 14,
+          vy: -(Math.random() * 10 + 5),
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          alpha: 1
+        });
+      }
+      if (!isFxLooping) {
+        isFxLooping = true;
+        renderFx();
+      }
+    }
+
+    function spawnFireworks() {
+      const colors = ['#ff4757', '#2ed573', '#ffa502', '#1e90ff', '#ff6b81', '#ffffff'];
+      const cx = canvas.width * (0.2 + Math.random() * 0.6);
+      const cy = canvas.height * (0.2 + Math.random() * 0.4);
+      for (let i = 0; i < 40; i++) {
+        const angle = (Math.PI * 2 / 40) * i;
+        const speed = Math.random() * 7 + 4;
+        particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 6 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: 0,
+          vRot: 0,
+          alpha: 1
+        });
+      }
+      if (!isFxLooping) {
+        isFxLooping = true;
+        renderFx();
+      }
+    }
+
+    function renderFx() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let running = false;
+      for (let p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35;
+        p.rot += p.vRot;
+        p.alpha -= 0.014;
+        if (p.alpha > 0) {
+          running = true;
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        }
+      }
+      if (running) {
+        requestAnimationFrame(renderFx);
+      } else {
+        isFxLooping = false;
+        particles = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    /* 10 Missing Letter Questions on TRIANGLE */
+    const TARGET = "TRIANGLE";
+    const questions = [
+      { missingIndex: 0, correct: 'T', options: ['T', 'B', 'P'], title: "Question 1: Find the first letter!" },
+      { missingIndex: 1, correct: 'R', options: ['L', 'R', 'S'], title: "Question 2: What letter comes next?" },
+      { missingIndex: 2, correct: 'I', options: ['I', 'E', 'O'], title: "Question 3: Which vowel is missing?" },
+      { missingIndex: 3, correct: 'A', options: ['U', 'O', 'A'], title: "Question 4: Find the missing letter!" },
+      { missingIndex: 4, correct: 'N', options: ['M', 'N', 'H'], title: "Question 5: What letter fits here?" },
+      { missingIndex: 5, correct: 'G', options: ['G', 'C', 'K'], title: "Question 6: Which letter is missing?" },
+      { missingIndex: 6, correct: 'L', options: ['T', 'J', 'L'], title: "Question 7: Find the letter near the end!" },
+      { missingIndex: 7, correct: 'E', options: ['A', 'E', 'I'], title: "Question 8: What is the last letter?" },
+      { missingIndex: 2, correct: 'I', options: ['I', 'Y', 'U'], title: "Question 9: Can you find 'I' again?" },
+      { missingIndex: 3, correct: 'A', options: ['E', 'A', 'O'], title: "Question 10: Find 'A' to finish TRIANGLE!" }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let questionAnswered = false;
+
+    /* Elements */
+    const startModal = document.getElementById('startModal');
+    const startBtn = document.getElementById('startBtn');
+    const finaleModal = document.getElementById('finaleModal');
+    const replayBtn = document.getElementById('replayBtn');
+    const soundToggle = document.getElementById('soundToggle');
+    const qBadge = document.getElementById('qBadge');
+    const pFill = document.getElementById('pFill');
+    const starCounter = document.getElementById('starCounter');
+    const trippyMascot = document.getElementById('trippyMascot');
+    const speechText = document.getElementById('speechText');
+    const playCard = document.getElementById('playCard');
+    const questionPrompt = document.getElementById('questionPrompt');
+    const wordStrip = document.getElementById('wordStrip');
+    const choicesBox = document.getElementById('choicesBox');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const buttonStyles = ['btn-pink', 'btn-yellow', 'btn-blue'];
+    const cheerTexts = ['Clap Clap! 👏 Great Job!', 'Super! 👏 You did it!', 'Hooray! 👏 Amazing!', 'Yay! 👏 You got it!'];
+
+    startBtn.onclick = function() {
+      sfx.init();
+      sfx.tap();
+      startModal.style.display = 'none';
+      renderQuestion(0);
+    };
+
+    replayBtn.onclick = function() {
+      sfx.tap();
+      finaleModal.style.display = 'none';
+      currentIdx = 0;
+      score = 0;
+      starCounter.textContent = '0';
+      renderQuestion(0);
+    };
+
+    soundToggle.onclick = function() {
+      sfx.enabled = !sfx.enabled;
+      soundToggle.textContent = sfx.enabled ? '🔔' : '🔕';
+      if (sfx.enabled) sfx.tap();
+    };
+
+    function renderQuestion(idx) {
+      questionAnswered = false;
+      const q = questions[idx];
+
+      qBadge.textContent = `${idx + 1}/10`;
+      pFill.style.width = `${((idx + 1) / 10) * 100}%`;
+      questionPrompt.textContent = q.title;
+      feedbackMsg.textContent = 'Tap a letter! ⭐';
+      feedbackMsg.style.color = '#00b894';
+      nextBtn.style.display = 'none';
+      speechText.textContent = "Which letter is missing? 🔺";
+      trippyMascot.classList.remove('dancing');
+
+      // Build word letters strip
+      wordStrip.innerHTML = '';
+      for (let i = 0; i < TARGET.length; i++) {
+        const tile = document.createElement('div');
+        if (i === q.missingIndex) {
+          tile.id = 'targetBlankTile';
+          tile.className = 'letter-tile blank-tile';
+          tile.textContent = '?';
+        } else {
+          tile.className = 'letter-tile';
+          tile.textContent = TARGET[i];
+        }
+        wordStrip.appendChild(tile);
+      }
+
+      // Build 3 answer choice buttons
+      choicesBox.innerHTML = '';
+      q.options.forEach((char, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = `letter-btn ${buttonStyles[optIdx % buttonStyles.length]}`;
+        btn.textContent = char;
+
+        btn.onclick = function() {
+          if (questionAnswered) return;
+          sfx.init();
+
+          if (char === q.correct) {
+            handleSuccess(btn, char);
+          } else {
+            handleError(btn);
+          }
+        };
+        choicesBox.appendChild(btn);
+      });
+    }
+
+    function handleSuccess(btn, char) {
+      questionAnswered = true;
+      score++;
+      starCounter.textContent = score;
+
+      // Visual updates
+      btn.style.filter = 'brightness(1.15)';
+      const blankTile = document.getElementById('targetBlankTile');
+      if (blankTile) {
+        blankTile.textContent = char;
+        blankTile.className = 'letter-tile filled-success';
+      }
+
+      // Clapping sound & confetti
+      sfx.clapping();
+      spawnConfetti(50);
+      trippyMascot.classList.add('dancing');
+
+      const cheer = cheerTexts[Math.floor(Math.random() * cheerTexts.length)];
+      speechText.textContent = cheer;
+      feedbackMsg.textContent = '🌟 Correct! 👏';
+      feedbackMsg.style.color = '#00b894';
+
+      nextBtn.style.display = 'block';
+    }
+
+    function handleError(btn) {
+      sfx.wrong();
+      playCard.classList.add('shake-card');
+      setTimeout(() => playCard.classList.remove('shake-card'), 360);
+
+      speechText.textContent = 'Try again! You can do it! 💕';
+      feedbackMsg.textContent = 'Oops! Try another letter! ✨';
+      feedbackMsg.style.color = '#d63031';
+    }
+
+    nextBtn.onclick = function() {
+      sfx.tap();
+      currentIdx++;
+      if (currentIdx < questions.length) {
+        renderQuestion(currentIdx);
+      } else {
+        showFinale();
+      }
+    };
+
+    function showFinale() {
+      sfx.grandCelebration();
+      finaleModal.style.display = 'flex';
+      trippyMascot.classList.add('dancing');
+
+      spawnFireworks();
+      spawnConfetti(80);
+
+      const timer = setInterval(() => {
+        if (finaleModal.style.display === 'flex') {
+          spawnFireworks();
+          spawnConfetti(30);
+        } else {
+          clearInterval(timer);
+        }
+      }, 1100);
+    }
+  </script>
+</body>
+</html>
